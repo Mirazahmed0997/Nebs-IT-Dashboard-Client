@@ -1,5 +1,6 @@
 import App from "@/App";
-import Task from "@/Pages/Task/Task";
+import AddNotice from "@/Pages/Notice/AddNotice";
+import Notice from "@/Pages/Notice/Notice";
 import UserList from "@/Pages/User/UserList";
 import { createBrowserRouter } from "react-router";
 
@@ -10,13 +11,17 @@ const router= createBrowserRouter([
         element: <App/>,
         children:[
             {
-                path:'task',
-                element:<Task></Task>
-            },
-            {
                 path:"users",
                 element:<UserList></UserList>
-            }
+            },
+            {
+                path:"addNotice",
+                element:<AddNotice></AddNotice>
+            },
+            {
+                path:"Notice",
+                element:<Notice></Notice>
+            },
         ]
     }
 ])

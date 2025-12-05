@@ -4,13 +4,12 @@ import Navbar from './components/Layout/Navbar/Navbar'
 
 
 function App() {
-
   return (
-    <>
-        <Navbar></Navbar>
-        <Outlet></Outlet>
-    </>
-  )
+    <Navbar>
+      <Outlet />
+    </Navbar>
+  );
 }
+
 
 export default App
