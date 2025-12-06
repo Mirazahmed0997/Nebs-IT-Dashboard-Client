@@ -1,212 +1,295 @@
-import { useState } from "react";
+
+import NoticeSuccessModal from "@/components/ui/Notice.SuccessModal";
+import { useState, useEffect } from "react";
+
 type FormDataType = {
-    target: string;
-    noticeTitle: string;
-    employeeId: string;
-    employeeName: string;
-    position: string;
+    targetType: "DEPARTMENT" | "INDIVIDUAL";
+    departmentIds?: string;
+    employeeId?: string;
+    title: string;
     noticeType: string;
+    body: string;
     publishDate: string;
-    noticeBody: string;
     attachments: File[];
+};
+
+type Department = {
+    _id: string;
+    title: string;
 };
 
 export default function AddNotice() {
     const [formData, setFormData] = useState<FormDataType>({
-        target: "Individual",
-        noticeTitle: "",
+        targetType: "DEPARTMENT",
+        departmentIds: "",
         employeeId: "",
-        employeeName: "",
-        position: "",
+        title: "",
         noticeType: "",
+        body: "",
         publishDate: "",
-        noticeBody: "",
         attachments: [],
     });
 
-    const handleChange = (e: any) => {
+    const [departments, setDepartments] = useState<Department[]>([]);
+    const [employees, setEmployees] = useState<{ _id: string; name: string }[]>([]);
+
+    const [successModal, setSuccessModal] = useState(false);
+    const [createdTitle, setCreatedTitle] = useState("");
+
+
+    useEffect(() => {
+        const fetchDepartments = async () => {
+            try {
+                const res = await fetch("http://localhost:5000/api/v1/Department");
+                const data = await res.json();
+                setDepartments(data.data || []);
+            } catch (err) {
+                console.error("Failed to fetch departments", err);
+            }
+        };
+
+        const fetchEmployees = async () => {
+            try {
+                const res = await fetch("http://localhost:5000/api/v1/Employee");
+                const data = await res.json();
+                setEmployees(data.data || []);
+            } catch (err) {
+                console.error("Failed to fetch employees", err);
+            }
+        };
+
+        fetchDepartments();
+        fetchEmployees();
+    }, []);
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
     };
 
-    const handleFileUpload = (e: any) => {
-        const files = Array.from<File>(e.target.files);
+    const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = e.target.files ? Array.from(e.target.files) : [];
         setFormData({ ...formData, attachments: files });
-
     };
 
-    const handleSubmit = (e: any) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        console.log("Submitted Data:", formData);
+
+        try {
+            const payload = new FormData();
+            payload.append(
+                "data",
+                JSON.stringify({
+                    targetType: formData.targetType,
+                    departmentIds: formData.departmentIds,
+                    employeeId: formData.employeeId,
+                    title: formData.title,
+                    noticeType: formData.noticeType,
+                    body: formData.body,
+                    publishDate: formData.publishDate,
+                    status: "PUBLISHED",
+                })
+            );
+
+            formData.attachments.forEach((file) => payload.append("file", file));
+
+            const res = await fetch("http://localhost:5000/api/v1/Notice/create", {
+                method: "POST",
+                body: payload,
+            });
+
+            const result = await res.json();
+            console.log("Notice created:", result);
+            setCreatedTitle(formData.title);
+            setSuccessModal(true);
+            setFormData({
+                targetType: "DEPARTMENT",
+                departmentIds: "",
+                employeeId: "",
+                title: "",
+                noticeType: "",
+                body: "",
+                publishDate: "",
+                attachments: [],
+            });
+        } catch (err) {
+            console.error("Error creating notice:", err);
+        }
     };
 
     return (
-        <div className="p-8 bg-white rounded-xl shadow-sm">
-            <h2 className="text-2xl font-semibold mb-6">Create a Notice</h2>
+        <div className="">
+            <div className="w-full max-w-4xl bg-white rounded-2xl p-6 md:p-10">
 
-            <form onSubmit={handleSubmit} className="space-y-8">
-                {/* Target */}
-                <div className="p-4 border rounded-lg bg-gray-50">
-                    <label className="font-medium text-gray-600 block">
-                        Target Department(s) or Individual
-                    </label>
-                    <select
-                        name="target"
-                        value={formData.target}
-                        onChange={handleChange}
-                        className="mt-2 w-full p-2 border rounded-lg"
-                    >
-                        <option>Individual</option>
-                        <option>HR</option>
-                        <option>Finance</option>
-                        <option>IT</option>
-                    </select>
-                </div>
+                <h2 className="text-3xl font-semibold mb-8 text-gray-800">
+                    Create a Notice
+                </h2>
 
-                {/* Basic Inputs */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                <form onSubmit={handleSubmit} className="space-y-6">
+
+                    <div className="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <label className="block font-medium mb-1 text-gray-700">Target</label>
+                            <select
+                                name="targetType"
+                                value={formData.targetType}
+                                onChange={handleChange}
+                                className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-orange-400"
+                            >
+                                <option value="DEPARTMENT">Department</option>
+                                <option value="INDIVIDUAL">Individual</option>
+                            </select>
+                        </div>
+
+                        {formData.targetType === "DEPARTMENT" && (
+                            <div>
+                                <label className="block font-medium mb-1 text-gray-700">
+                                    Select Department
+                                </label>
+                                <select
+                                    name="departmentIds"
+                                    value={formData.departmentIds}
+                                    onChange={handleChange}
+                                    className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-orange-400"
+                                >
+                                    <option value="">Select department</option>
+                                    {departments?.data?.map((d: any) => (
+                                        <option key={d._id} value={d._id}>
+                                            {d.title}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        )}
+
+                        {formData.targetType === "INDIVIDUAL" && (
+                            <div>
+                                <label className="block font-medium mb-1 text-gray-700">
+                                    Select Employee
+                                </label>
+                                <select
+                                    name="employeeId"
+                                    value={formData.employeeId}
+                                    onChange={handleChange}
+                                    className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-orange-400"
+                                >
+                                    <option value="">Select employee</option>
+                                    {employees?.data?.map((e: any) => (
+                                        <option key={e._id} value={e._id}>
+                                            {e.name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        )}
+                    </div>
+
                     <div>
-                        <label className="block font-medium text-gray-600">Notice Title</label>
+                        <label className="block font-medium mb-1 text-gray-700">Title</label>
                         <input
                             type="text"
-                            name="noticeTitle"
-                            value={formData.noticeTitle}
+                            name="title"
+                            value={formData.title}
                             onChange={handleChange}
-                            className="w-full p-2 border rounded-lg"
-                            placeholder="Write the Title of Notice"
+                            className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-orange-400"
+                            placeholder="Notice title"
                         />
                     </div>
 
                     <div>
-                        <label className="block font-medium text-gray-600">Select Employee ID</label>
-                        <select
-                            name="employeeId"
-                            value={formData.employeeId}
-                            onChange={handleChange}
-                            className="w-full p-2 border rounded-lg"
-                        >
-                            <option value="">Select employee designation</option>
-                            <option value="E-101">E-101</option>
-                            <option value="E-102">E-102</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label className="block font-medium text-gray-600">Employee Name</label>
+                        <label className="block font-medium mb-1 text-gray-700">Notice Type</label>
                         <input
                             type="text"
-                            name="employeeName"
-                            value={formData.employeeName}
-                            onChange={handleChange}
-                            className="w-full p-2 border rounded-lg"
-                            placeholder="Enter employee full name"
-                        />
-                    </div>
-                </div>
-
-                {/* Position + Notice Type + Publish Date */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                    <div>
-                        <label className="block font-medium text-gray-600">Position</label>
-                        <input
-                            type="text"
-                            name="position"
-                            value={formData.position}
-                            onChange={handleChange}
-                            className="w-full p-2 border rounded-lg"
-                            placeholder="Select employee department"
-                        />
-                    </div>
-
-                    <div>
-                        <label className="block font-medium text-gray-600">Notice Type</label>
-                        <select
                             name="noticeType"
                             value={formData.noticeType}
                             onChange={handleChange}
-                            className="w-full p-2 border rounded-lg"
-                        >
-                            <option value="">Select Notice Type</option>
-                            <option value="General">General</option>
-                            <option value="Warning">Warning</option>
-                            <option value="Update">Update</option>
-                        </select>
+                            className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-orange-400"
+                            placeholder="e.g., Holiday, HR, Warning"
+                        />
                     </div>
 
                     <div>
-                        <label className="block font-medium text-gray-600">Publish Date</label>
+                        <label className="block font-medium mb-1 text-gray-700">Body</label>
+                        <textarea
+                            name="body"
+                            value={formData.body}
+                            onChange={handleChange}
+                            className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-orange-400"
+                            placeholder="Write the notice details"
+                            rows={5}
+                        />
+                    </div>
+
+                    <div className="md:w-1/2">
+                        <label className="block font-medium mb-1 text-gray-700">Publish Date</label>
                         <input
                             type="date"
                             name="publishDate"
                             value={formData.publishDate}
                             onChange={handleChange}
-                            className="w-full p-2 border rounded-lg"
+                            className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-orange-400"
                         />
                     </div>
-                </div>
 
-                {/* Notice Body */}
-                <div>
-                    <label className="block font-medium text-gray-600">Notice Body</label>
-                    <textarea
-                        name="noticeBody"
-                        rows={4}
-                        value={formData.noticeBody}
-                        onChange={handleChange}
-                        className="w-full p-3 border rounded-lg"
-                        placeholder="Write the details about notice"
-                    ></textarea>
-                </div>
+                    <div>
+                        <label className="block font-medium mb-1 text-gray-700">Attachments</label>
 
-                {/* File Upload */}
-                <div className="border-2 border-dashed rounded-lg p-6 text-center">
-                    <p className="text-green-600 font-medium">
-                        Upload profile image or drag and drop. Accepted File Type: jpg, png, pdf
-                    </p>
+                        <div className="border rounded-lg p-3 bg-gray-50">
+                            <input
+                                type="file"
+                                multiple
+                                onChange={handleFileUpload}
+                                className="w-full"
+                            />
 
-                    <input
-                        type="file"
-                        multiple
-                        onChange={handleFileUpload}
-                        className="mt-3"
-                    />
-
-                    {/* File Preview */}
-                    {formData.attachments.length > 0 && (
-                        <div className="mt-3">
-                            {formData.attachments.map((file, index) => (
-                                <div key={index} className="flex items-center gap-2 p-2 bg-gray-100 rounded-lg mt-2">
-                                    <span className="text-gray-700">{file.name}</span>
-                                </div>
-                            ))}
+                            {formData.attachments.length > 0 && (
+                                <ul className="mt-2 space-y-1 text-sm text-gray-600">
+                                    {formData.attachments.map((file, idx) => (
+                                        <li key={idx} className="flex items-center gap-2">
+                                            📄 {file.name}
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
                         </div>
-                    )}
-                </div>
+                    </div>
 
-                {/* Buttons */}
-                <div className="flex justify-end gap-3">
-                    <button
-                        type="button"
-                        className="px-6 py-2 border rounded-lg text-gray-600 hover:bg-gray-100"
-                    >
-                        Cancel
-                    </button>
+                    <div className="pt-4">
+                        <button
+                            type="submit"
+                            className="w-full md:w-auto px-8 py-3 bg-orange-500 hover:bg-orange-600 
+                       text-white rounded-lg font-medium transition shadow-md"
+                        >
+                            Publish Notice
+                        </button>
+                    </div>
+                </form>
+            </div>
 
-                    <button
-                        type="button"
-                        className="px-6 py-2 bg-gray-200 rounded-lg"
-                    >
-                        Save as Draft
-                    </button>
 
-                    <button
-                        type="submit"
-                        className="px-6 py-2 bg-orange-500 text-white rounded-lg"
-                    >
-                        Publish Notice
-                    </button>
-                </div>
-            </form>
+            <NoticeSuccessModal
+                isOpen={successModal}
+                onClose={() => setSuccessModal(false)}
+                onView={() => {
+                    setSuccessModal(false);
+                    window.location.href = "/notice"; // change to your page
+                }}
+                onCreateAnother={() => {
+                    setSuccessModal(false);
+                    setFormData({
+                        targetType: "DEPARTMENT",
+                        departmentIds: "",
+                        employeeId: "",
+                        title: "",
+                        noticeType: "",
+                        body: "",
+                        publishDate: "",
+                        attachments: [],
+                    });
+                }}
+            />
+
         </div>
     );
+
 }

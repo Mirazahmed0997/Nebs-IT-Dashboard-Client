@@ -1,70 +1,85 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Eye, Pencil, Trash2 } from "lucide-react";
 
 export default function Notice() {
   const [activePage, setActivePage] = useState(1);
 
-  const notices = [
-    {
-      title: "Office closed on Friday for maintenance.",
-      type: "General / Company-W",
-      department: "All Department",
-      date: "15-Jun-2025",
-      status: "Published",
-    },
-    {
-      title: "Eid al-Fitr holiday schedule.",
-      type: "Holiday & Event",
-      department: "Finance",
-      date: "15-Jun-2025",
-      status: "Published",
-    },
-    {
-      title: "Updated code of conduct policy",
-      type: "HR & Policy Update",
-      department: "Sales Team",
-      date: "15-Jun-2025",
-      status: "Published",
-    },
-    {
-      title: "Payroll for October will be processed on 28th",
-      type: "Finance & Payroll",
-      department: "Web Team",
-      date: "15-Jun-2025",
-      status: "Published",
-    },
-    {
-      title: "System update scheduled",
-      type: "IT / System Maintenance",
-      department: "Database Team",
-      date: "15-Jun-2025",
-      status: "Published",
-    },
-    {
-      title: "Design team sprint review moved to Tuesday.",
-      type: "Department / Team",
-      department: "Admin",
-      date: "15-Jun-2025",
-      status: "Published",
-    },
-    {
-      title: "Unauthorized absence recorded on 18 Oct",
-      type: "Warning / Disciplinary",
-      department: "Individual",
-      date: "15-Jun-2025",
-      status: "Unpublished",
-    },
-    {
-      title: "Office closed today due to severe weather",
-      type: "Emergency / Urgent",
-      department: "HR",
-      date: "15-Jun-2025",
-      status: "Draft",
-    },
-  ];
+    const [notices, setNotices] = useState([])
+  
+    const fetchEmployees = async () => {
+      try {
+        const res = await fetch("http://localhost:5000/api/v1/Notice")
+        const data = await res.json()
+        setNotices(data?.data || [])
+      } catch (err) {
+        console.log("Failed to fetch departments:", err)
+      }
+    }
+    useEffect(() => {
+        fetchEmployees()
+      }, [])
+
+//   const notices = [
+//     {
+//       title: "Office closed on Friday for maintenance.",
+//       type: "General / Company-W",
+//       department: "All Department",
+//       date: "15-Jun-2025",
+//       status: "Published",
+//     },
+//     {
+//       title: "Eid al-Fitr holiday schedule.",
+//       type: "Holiday & Event",
+//       department: "Finance",
+//       date: "15-Jun-2025",
+//       status: "Published",
+//     },
+//     {
+//       title: "Updated code of conduct policy",
+//       type: "HR & Policy Update",
+//       department: "Sales Team",
+//       date: "15-Jun-2025",
+//       status: "Published",
+//     },
+//     {
+//       title: "Payroll for October will be processed on 28th",
+//       type: "Finance & Payroll",
+//       department: "Web Team",
+//       date: "15-Jun-2025",
+//       status: "Published",
+//     },
+//     {
+//       title: "System update scheduled",
+//       type: "IT / System Maintenance",
+//       department: "Database Team",
+//       date: "15-Jun-2025",
+//       status: "Published",
+//     },
+//     {
+//       title: "Design team sprint review moved to Tuesday.",
+//       type: "Department / Team",
+//       department: "Admin",
+//       date: "15-Jun-2025",
+//       status: "Published",
+//     },
+//     {
+//       title: "Unauthorized absence recorded on 18 Oct",
+//       type: "Warning / Disciplinary",
+//       department: "Individual",
+//       date: "15-Jun-2025",
+//       status: "Unpublished",
+//     },
+//     {
+//       title: "Office closed today due to severe weather",
+//       type: "Emergency / Urgent",
+//       department: "HR",
+//       date: "15-Jun-2025",
+//       status: "Draft",
+//     },
+//   ];
 
   return (
-    <div className="p-6 bg-white shadow rounded-xl">
+    <div className="p-6 bg-white shadow ">
       <div className="flex flex-wrap gap-4 mb-6">
         <select className="p-2 border rounded-lg text-gray-600">
           <option>Departments or Individuals</option>
@@ -105,17 +120,17 @@ export default function Notice() {
           </thead>
 
           <tbody>
-            {notices.map((row, i) => (
+            {notices?.data?.map((row:any, i:any) => (
               <tr
                 key={i}
                 className="border-b hover:bg-gray-50 transition"
               >
                 <td className="p-4">{row.title}</td>
-                <td className="p-4">{row.type}</td>
+                <td className="p-4">{row.noticeType}</td>
                 <td className="p-4 text-blue-600 cursor-pointer hover:underline">
-                  {row.department}
+                  {row.targetType}
                 </td>
-                <td className="p-4">{row.date}</td>
+                <td className="p-4">{row.publishDate}</td>
 
                 {/* Status Badge */}
                 <td className="p-4">

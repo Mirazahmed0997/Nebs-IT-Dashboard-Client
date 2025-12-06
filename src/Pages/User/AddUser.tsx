@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -8,100 +9,183 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
+
 import { Input } from "@/components/ui/input"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form"
+
 import { useForm } from "react-hook-form"
-import { useAppDispatch } from "@/State/hooks"
-import { addUser } from "@/State/Feature/User/UserSlice"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 
 export function AddUserModal() {
-  const [open,setOpen]= useState(false)
+  const [open, setOpen] = useState(false)
   const form = useForm()
-  const dispatch = useAppDispatch()
+  const [departments, setDepartments] = useState([])
 
-  const onSubmit = (data: any) => {
-    console.log(data)
+  const fetchDepartments = async () => {
+    try {
+      const res = await fetch("http://localhost:5000/api/v1/Department")
+      const data = await res.json()
+      setDepartments(data?.data || [])
+    } catch (err) {
+      console.log("Failed to fetch departments:", err)
+    }
+  }
+
+
+  useEffect(() => {
+    fetchDepartments()
+  }, [])
+
+  const createEmployee = async (payload: any) => {
+    const res = await fetch("http://localhost:5000/api/v1/Employee/create", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    })
+
+    const data = await res.json()
+    return data
+  }
+
+  const onSubmit = async (data: any) => {
+
+    const res = await createEmployee(data)
+
+    if (!res.success) {
+      alert(res.message || "Error creating employee")
+      return
+    }
+
+    alert("Employee created successfully")
     setOpen(false)
     form.reset()
-    dispatch(addUser(data))
   }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="bg-blue-600 hover:bg-blue-700 transition-all duration-200">
-          Add User
-        </Button>
+        <Button className="bg-green-600 hover:bg-blue-700">Add Employee</Button>
       </DialogTrigger>
 
-      <DialogContent className="max-w-lg w-full sm:rounded-2xl">
+      <DialogContent className="max-w-lg w-full">
         <DialogHeader>
-          <DialogTitle className="text-xl font-semibold text-gray-900">
-            Add New User
+          <DialogTitle className="text-xl font-semibold">
+            Add New Employee
           </DialogTitle>
-          <DialogDescription className="text-sm text-gray-500">
-            Fill out the information below to create a new user.
+          <DialogDescription>
+            Fill all fields to create a new employee.
           </DialogDescription>
         </DialogHeader>
 
         <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-5 mt-4"
-          >
-            {/* Name */}
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5 mt-4">
+
+            {/* NAME */}
             <FormField
               control={form.control}
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-gray-700 font-medium">
-                    Name
-                  </FormLabel>
+                  <FormLabel>Name</FormLabel>
                   <FormControl>
-                    <Input
-                      {...field}
-                      value={field.value || ""}
-                      placeholder="Enter user's name"
-                      className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-                    />
+                    <Input {...field} placeholder="Enter name" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
 
-            {/* Email */}
+            {/* EMAIL */}
             <FormField
               control={form.control}
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-gray-700 font-medium">
-                    Email
-                  </FormLabel>
+                  <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input
-                      type="email"
-                      {...field}
-                      value={field.value || ""}
-                      placeholder="Enter user's email"
-                      className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-                    />
+                    <Input {...field} type="email" placeholder="Enter email" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
 
-            {/* Footer */}
+            {/* EMPLOYEE ID */}
+            <FormField
+              control={form.control}
+              name="employeeId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Employee ID</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="Enter employee ID" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* DEPARTMENT (ObjectId) */}
+            <FormField
+              control={form.control}
+              name="department"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Select Department</FormLabel>
+                  <FormControl>
+                    <select
+                      {...field}
+                      className="border p-2 rounded-md"
+                    >
+                      <option value="">Select department</option>
+                      {departments?.data.map((d: any) => (
+                        <option key={d._id} value={d._id}>
+                          {d.title}
+                        </option>
+                      ))}
+                    </select>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* ROLE ENUM */}
+            <FormField
+              control={form.control}
+              name="role"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Select Role</FormLabel>
+                  <FormControl>
+                    <select
+                      {...field}
+                      className="border p-2 rounded-md"
+                    >
+                      <option value="">Select role</option>
+                      <option value="SALES">SALES</option>
+                      <option value="OPERATIONS">OPERATIONS</option>
+                    </select>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* FOOTER */}
             <DialogFooter className="pt-4">
               <Button
                 type="submit"
-                className="w-full bg-blue-600 hover:bg-blue-700 transition-all duration-200"
+                className="w-full bg-blue-600 hover:bg-blue-700"
               >
-                Save User
+                Save Employee
               </Button>
             </DialogFooter>
           </form>
