@@ -32,9 +32,7 @@ export default function AddNotice() {
 
     const [departments, setDepartments] = useState<Department[]>([]);
     const [employees, setEmployees] = useState<{ _id: string; name: string }[]>([]);
-
     const [successModal, setSuccessModal] = useState(false);
-    const [createdTitle, setCreatedTitle] = useState("");
 
 
     useEffect(() => {
@@ -47,6 +45,8 @@ export default function AddNotice() {
                 console.error("Failed to fetch departments", err);
             }
         };
+
+        console.log(departments)
 
         const fetchEmployees = async () => {
             try {
@@ -100,7 +100,6 @@ export default function AddNotice() {
 
             const result = await res.json();
             console.log("Notice created:", result);
-            setCreatedTitle(formData.title);
             setSuccessModal(true);
             setFormData({
                 targetType: "DEPARTMENT",
