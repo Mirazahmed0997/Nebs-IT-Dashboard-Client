@@ -10,7 +10,7 @@ export default function Notice() {
 
     const fetchNotices = async () => {
         try {
-            const res = await fetch("https://nebs-it-dashboard-server.onrender.com/api/v1/Notice")
+            const res = await fetch("http://localhost:5000/api/v1/Notice")
             const data = await res.json()
             setNotices(data?.data || [])
         } catch (err) {
@@ -27,7 +27,7 @@ export default function Notice() {
             currentStatus === "PUBLISHED" ? "UNPUBLISHED" : "PUBLISHED";
 
         try {
-            const res = await fetch(`https://nebs-it-dashboard-server.onrender.com/api/v1/Notice/${id}`, {
+            const res = await fetch(`http://localhost:5000/api/v1/Notice/${id}`, {
                 method: "PATCH",
                 headers: {
                     "Content-Type": "application/json",
@@ -54,7 +54,7 @@ export default function Notice() {
         if (!confirmed) return;
 
         try {
-            const res = await fetch(`https://nebs-it-dashboard-server.onrender.com/api/v1/Notice/${id}`, {
+            const res = await fetch(`http://localhost:5000/api/v1/Notice/${id}`, {
                 method: "DELETE",
             });
 

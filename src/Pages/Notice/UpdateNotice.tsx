@@ -24,7 +24,7 @@ export default function UpdateNotice() {
 
     const fetchNotice = async () => {
         try {
-            const res = await fetch(`https://nebs-it-dashboard-server.onrender.com/api/v1/Notice/${id}`);
+            const res = await fetch(`http://localhost:5000/api/v1/Notice/${id}`);
             const json = await res.json();
 
             if (!res.ok) {
@@ -95,7 +95,7 @@ export default function UpdateNotice() {
             );
 
             const res = await fetch(
-                `https://nebs-it-dashboard-server.onrender.com/api/v1/Notice/update/${id}`,
+                `http://localhost:5000/api/v1/Notice/update/${id}`,
                 { method: "PATCH", body: payload }
             );
 

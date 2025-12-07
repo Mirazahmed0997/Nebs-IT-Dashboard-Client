@@ -30,7 +30,7 @@ export function AddUserModal() {
 
   const fetchDepartments = async () => {
     try {
-      const res = await fetch("https://nebs-it-dashboard-server.onrender.com/api/v1/Department")
+      const res = await fetch("http://localhost:5000/api/v1/Department")
       const data = await res.json()
       setDepartments(data?.data || [])
     } catch (err) {
@@ -44,7 +44,7 @@ export function AddUserModal() {
   }, [])
 
   const createEmployee = async (payload: any) => {
-    const res = await fetch("https://nebs-it-dashboard-server.onrender.com/api/v1/Employee/create", {
+    const res = await fetch("http://localhost:5000/api/v1/Employee/create", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),

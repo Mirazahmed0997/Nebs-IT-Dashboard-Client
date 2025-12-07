@@ -10,7 +10,7 @@ const NoticeDetails = () => {
 
     const fetchNotice = async () => {
         try {
-            const res = await fetch(`https://nebs-it-dashboard-server.onrender.com/api/v1/Notice/${id}`);
+            const res = await fetch(`http://localhost:5000/api/v1/Notice/${id}`);
             const data = await res.json();
             setNotice(data?.data || null);
         } catch (err) {

@@ -17,7 +17,7 @@ const UserList = () => {
 
   const fetchEmployees = async () => {
     try {
-      const res = await fetch("https://nebs-it-dashboard-server.onrender.com/api/v1/Employee")
+      const res = await fetch("http://localhost:5000/api/v1/Employee")
       const data = await res.json()
       setEmployees(data?.data || [])
     } catch (err) {

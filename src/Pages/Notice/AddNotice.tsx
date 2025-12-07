@@ -38,7 +38,7 @@ export default function AddNotice() {
     useEffect(() => {
         const fetchDepartments = async () => {
             try {
-                const res = await fetch("https://nebs-it-dashboard-server.onrender.com/api/v1/Department");
+                const res = await fetch("http://localhost:5000/api/v1/Department");
                 const data = await res.json();
                 setDepartments(data.data || []);
             } catch (err) {
@@ -50,7 +50,7 @@ export default function AddNotice() {
 
         const fetchEmployees = async () => {
             try {
-                const res = await fetch("https://nebs-it-dashboard-server.onrender.com/api/v1/Employee");
+                const res = await fetch("http://localhost:5000/api/v1/Employee");
                 const data = await res.json();
                 setEmployees(data.data || []);
             } catch (err) {
@@ -93,7 +93,7 @@ export default function AddNotice() {
 
             formData.attachments.forEach((file) => payload.append("file", file));
 
-            const res = await fetch("https://nebs-it-dashboard-server.onrender.com/api/v1/Notice/create", {
+            const res = await fetch("http://localhost:5000/api/v1/Notice/create", {
                 method: "POST",
                 body: payload,
             });
