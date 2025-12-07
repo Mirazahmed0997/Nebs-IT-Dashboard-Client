@@ -9,7 +9,6 @@ export default function NoticeSuccessModal({
 }: {
   isOpen: boolean;
   onClose: () => void;
-  title: string;
   onView: () => void;
   onCreateAnother: () => void;
 }) {

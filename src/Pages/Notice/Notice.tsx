@@ -1,14 +1,16 @@
 import { useEffect, useState } from "react";
 import { Eye, Pencil, Trash2 } from "lucide-react";
+import router from "@/Routes/Index";
+import { Link } from "react-router";
 
 export default function Notice() {
     const [activePage, setActivePage] = useState(1);
 
     const [notices, setNotices] = useState([])
 
-    const fetchEmployees = async () => {
+    const fetchNotices = async () => {
         try {
-            const res = await fetch("http://localhost:5000/api/v1/Notice")
+            const res = await fetch("https://nebs-it-dashboard-server.onrender.com/api/v1/Notice")
             const data = await res.json()
             setNotices(data?.data || [])
         } catch (err) {
@@ -16,7 +18,7 @@ export default function Notice() {
         }
     }
     useEffect(() => {
-        fetchEmployees()
+        fetchNotices()
     }, [])
 
 
@@ -25,16 +27,13 @@ export default function Notice() {
             currentStatus === "PUBLISHED" ? "UNPUBLISHED" : "PUBLISHED";
 
         try {
-            const res = await fetch(
-                `http://localhost:5000/api/v1/Notice/${id}`,
-                {
-                    method: "PATCH",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({ status: newStatus }),
-                }
-            );
+            const res = await fetch(`https://nebs-it-dashboard-server.onrender.com/api/v1/Notice/${id}`, {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ status: newStatus }),
+            });
 
             const data = await res.json();
 
@@ -50,12 +49,26 @@ export default function Notice() {
         }
     };
 
+    const handleDelete = async (id: string) => {
+        const confirmed = window.confirm("Are you sure you want to delete this notice?");
+        if (!confirmed) return;
+
+        try {
+            const res = await fetch(`https://nebs-it-dashboard-server.onrender.com/api/v1/Notice/${id}`, {
+                method: "DELETE",
+            });
+
+            const data = await res.json();
+        } catch (err) {
+            console.error("Delete failed:", err);
+        }
+    };
 
 
 
     return (
-        <div className="p-6 bg-white shadow ">
-            <div className="flex flex-wrap gap-4 mb-6">
+        <div className="p-6 bg-white shadow">
+            <div className="flex flex-wrap gap-4 mb-6  w-[1100px]">
                 <select className="p-2 border rounded-lg text-gray-600">
                     <option>Departments or Individuals</option>
                 </select>
@@ -130,9 +143,16 @@ export default function Notice() {
 
 
                                 <td className="p-4 flex items-center gap-3 text-gray-500">
-                                    <Eye className="w-5 h-5 cursor-pointer hover:text-gray-700" />
-                                    <Pencil className="w-5 h-5 cursor-pointer hover:text-gray-700" />
-                                    <Trash2 className="w-5 h-5 cursor-pointer hover:text-red-600" />
+                                    <Link to={`/NoticeDetails/${row._id}`}>
+                                        <Eye className="w-5 h-5 cursor-pointer hover:text-gray-700" />
+                                    </Link>
+                                    <Link to={`/updateNotice/${row._id}`}>
+                                        <Pencil className="w-5 h-5 cursor-pointer hover:text-gray-700" />
+                                    </Link>                    
+                                    <Trash2
+                                        onClick={() => handleDelete(row._id)}
+                                        className="w-5 h-5 cursor-pointer hover:text-red-600"
+                                    />
                                 </td>
                             </tr>
                         ))}

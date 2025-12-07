@@ -30,7 +30,7 @@ export function AddUserModal() {
 
   const fetchDepartments = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/v1/Department")
+      const res = await fetch("https://nebs-it-dashboard-server.onrender.com/api/v1/Department")
       const data = await res.json()
       setDepartments(data?.data || [])
     } catch (err) {
@@ -44,7 +44,7 @@ export function AddUserModal() {
   }, [])
 
   const createEmployee = async (payload: any) => {
-    const res = await fetch("http://localhost:5000/api/v1/Employee/create", {
+    const res = await fetch("https://nebs-it-dashboard-server.onrender.com/api/v1/Employee/create", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
@@ -87,7 +87,6 @@ export function AddUserModal() {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5 mt-4">
 
-            {/* NAME */}
             <FormField
               control={form.control}
               name="name"
@@ -102,7 +101,6 @@ export function AddUserModal() {
               )}
             />
 
-            {/* EMAIL */}
             <FormField
               control={form.control}
               name="email"
@@ -117,7 +115,6 @@ export function AddUserModal() {
               )}
             />
 
-            {/* EMPLOYEE ID */}
             <FormField
               control={form.control}
               name="employeeId"
@@ -132,7 +129,6 @@ export function AddUserModal() {
               )}
             />
 
-            {/* DEPARTMENT (ObjectId) */}
             <FormField
               control={form.control}
               name="department"
@@ -157,7 +153,6 @@ export function AddUserModal() {
               )}
             />
 
-            {/* ROLE ENUM */}
             <FormField
               control={form.control}
               name="role"
@@ -179,7 +174,6 @@ export function AddUserModal() {
               )}
             />
 
-            {/* FOOTER */}
             <DialogFooter className="pt-4">
               <Button
                 type="submit"

@@ -40,7 +40,7 @@ export default function AddNotice() {
     useEffect(() => {
         const fetchDepartments = async () => {
             try {
-                const res = await fetch("http://localhost:5000/api/v1/Department");
+                const res = await fetch("https://nebs-it-dashboard-server.onrender.com/api/v1/Department");
                 const data = await res.json();
                 setDepartments(data.data || []);
             } catch (err) {
@@ -50,7 +50,7 @@ export default function AddNotice() {
 
         const fetchEmployees = async () => {
             try {
-                const res = await fetch("http://localhost:5000/api/v1/Employee");
+                const res = await fetch("https://nebs-it-dashboard-server.onrender.com/api/v1/Employee");
                 const data = await res.json();
                 setEmployees(data.data || []);
             } catch (err) {
@@ -81,8 +81,8 @@ export default function AddNotice() {
                 "data",
                 JSON.stringify({
                     targetType: formData.targetType,
-                    departmentIds: formData.departmentIds,
-                    employeeId: formData.employeeId,
+                    departmentIds: formData.departmentIds || null,
+                    employeeId: formData.employeeId || null,
                     title: formData.title,
                     noticeType: formData.noticeType,
                     body: formData.body,
@@ -93,7 +93,7 @@ export default function AddNotice() {
 
             formData.attachments.forEach((file) => payload.append("file", file));
 
-            const res = await fetch("http://localhost:5000/api/v1/Notice/create", {
+            const res = await fetch("https://nebs-it-dashboard-server.onrender.com/api/v1/Notice/create", {
                 method: "POST",
                 body: payload,
             });
@@ -117,9 +117,13 @@ export default function AddNotice() {
         }
     };
 
+
+ 
+
+
     return (
         <div className="">
-            <div className="w-full max-w-4xl bg-white rounded-2xl p-6 md:p-10">
+            <div className="w-[1000px] bg-white rounded-2xl p-6 md:p-10">
 
                 <h2 className="text-3xl font-semibold mb-8 text-gray-800">
                     Create a Notice
