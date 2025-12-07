@@ -1,3 +1,16 @@
+TO run the project need to command >>> 
+*npm install
+*npm run dev
+backend urls: 
+https://nebs-it-dashboard-server.onrender.com
+or
+local host : http://localhost:5000/
+
+I couldn't host the frontend for some file configure error . as I said before I am doing a full time job at 10-7 i havn't expending much time for this please consider my situation.
+but project is working in localhost just run those command 
+
+
+
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
